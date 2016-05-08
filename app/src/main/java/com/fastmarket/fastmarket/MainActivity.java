@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -24,6 +25,9 @@ import com.google.zxing.integration.android.IntentResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
@@ -32,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ListView listView;
     private ListProductos lista;
-    private String authDE="Cc10Q5b3u5Ll0Vu6",  keyDE="/7gTYlpC/2dT";
+    private String authDE = "Cc10Q5b3u5Ll0Vu6", keyDE = "/7gTYlpC/2dT";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-                FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         if (fab != null) {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -78,20 +82,19 @@ public class MainActivity extends AppCompatActivity {
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if(result != null) {
-            if(result.getContents() != null) {
+        if (result != null) {
+            if (result.getContents() != null) {
                 String code = result.getContents();
-                String signature ="";
+                String signature = "";
                 try {
                     signature = Utils.calculateRFC2104HMAC(code, authDE);
-                }catch(SignatureException|NoSuchAlgorithmException|InvalidKeyException ex){
-                    Log.d("Error en la conversion","HMAC_SHA1",ex);
+                } catch (SignatureException | NoSuchAlgorithmException | InvalidKeyException ex) {
+                    Log.d("Error en la conversion", "HMAC_SHA1", ex);
                 }
-                String url = "http://digit-eyes.com/gtin/v2_0/?upc_code="+code+"&app_key="+keyDE+"&signature="+signature+"&language=es&field_names=description,image,categories";
+                String url = "http://digit-eyes.com/gtin/v2_0/?upc_code=" + code + "&app_key=" + keyDE + "&signature=" + signature + "&language=es&field_names=description,image,categories";
                 Log.d("url del sitio", url);
                 JsonObjectRequest jsObjRequest = new JsonObjectRequest
                         (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
                             @Override
                             public void onResponse(JSONObject response) {
                                 try {
@@ -99,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                                     String imagen = response.getString("image");
                                     String categorias = response.getString("categories");
                                     agregarElemento(producto, imagen, categorias);
-
+                                    Toast.makeText(getApplicationContext(), producto + " " + categorias, Toast.LENGTH_LONG).show();
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                     Toast.makeText(getApplicationContext(),
@@ -110,8 +113,8 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                // TODO Auto-generated method stub
-
+                                Toast.makeText(getApplicationContext(), "error: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                                Log.d("error volley", error.toString());
                             }
                         });
                 RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -121,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void agregarElemento(String producto, String imagen, String categorias) {
-        Producto p =  new Producto(imagen,categorias,0,producto);
+        Producto p = new Producto(imagen, categorias, 0, producto);
         lista.add(p);
     }
 }
