@@ -1,14 +1,10 @@
 package com.fastmarket.fastmarket;
 
 import android.util.Base64;
-import android.util.Xml;
 
-import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-import java.util.Formatter;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -24,6 +20,6 @@ public class Utils {
         SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), HMAC_SHA1_ALGORITHM);
         Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
         mac.init(signingKey);
-        return Base64.encode(mac.doFinal(data.getBytes()),Base64.DEFAULT).toString();
+        return Base64.encodeToString(mac.doFinal(data.getBytes()),Base64.DEFAULT);
     }
 }

@@ -1,5 +1,7 @@
 package com.fastmarket.fastmarket;
 
+import com.journeyapps.barcodescanner.Util;
+
 import org.hamcrest.core.StringContains;
 import org.junit.Test;
 
@@ -16,8 +18,12 @@ public class ExampleUnitTest {
 
     @Test
     public void testSHA() throws Exception {
-        System.out.println(R.string.authDE);
-        System.out.println(String.valueOf(R.string.authDE));
-        assertEquals("4dC42WyPvICPBbix1QX5ANKWmwo=",Utils.calculateRFC2104HMAC("5055709806939", "Cc10Q5b3u5Ll0Vu6"));
+        String n = "50557098069";
+        int a = 39;
+        for (int i = 0; i < 10; i++) {
+            System.out.println(Utils.calculateRFC2104HMAC(n + String.valueOf(a), "Cc10Q5b3u5Ll0Vu6"));
+            a++;
+        }
+       // assertEquals("4dC42WyPvICPBbix1QX5ANKWmwo=", Utils.calculateRFC2104HMAC("5055709806939", "Cc10Q5b3u5Ll0Vu6"));
     }
 }

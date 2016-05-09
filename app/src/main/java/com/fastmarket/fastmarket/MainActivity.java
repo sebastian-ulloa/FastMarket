@@ -1,11 +1,11 @@
 package com.fastmarket.fastmarket;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -25,17 +25,17 @@ import com.google.zxing.integration.android.IntentResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private ListView listView;
     private ListProductos lista;
+    private List<Producto> productos;
     private String authDE = "Cc10Q5b3u5Ll0Vu6", keyDE = "/7gTYlpC/2dT";
 
     @Override
@@ -53,8 +53,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+        productos = new ArrayList<>();
         listView = (ListView) findViewById(R.id.listView);
-        lista = new ListProductos(this);
+        lista = new ListProductos(this,productos);
         listView.setAdapter(lista);
     }
 
@@ -91,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
                 } catch (SignatureException | NoSuchAlgorithmException | InvalidKeyException ex) {
                     Log.d("Error en la conversion", "HMAC_SHA1", ex);
                 }
+                signature = Uri.encode(signature,"=");
+                signature = signature.replaceAll("\\%0A","");
                 String url = "http://digit-eyes.com/gtin/v2_0/?upc_code=" + code + "&app_key=" + keyDE + "&signature=" + signature + "&language=es&field_names=description,image,categories";
                 Log.d("url del sitio", url);
                 JsonObjectRequest jsObjRequest = new JsonObjectRequest
@@ -102,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
                                     String imagen = response.getString("image");
                                     String categorias = response.getString("categories");
                                     agregarElemento(producto, imagen, categorias);
-                                    Toast.makeText(getApplicationContext(), producto + " " + categorias, Toast.LENGTH_LONG).show();
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                     Toast.makeText(getApplicationContext(),
