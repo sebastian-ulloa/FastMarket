@@ -3,39 +3,76 @@
     android:layout_width="match_parent" android:layout_height="match_parent">
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="10dp">
+        android:layout_alignParentTop="false"
+        android:measureWithLargestChild="true"
+        android:orientation="horizontal"
+        android:padding="5dp"
+        android:weightSum="1">
 
         <ImageView
+            android:id="@+id/imagenProducto"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:layout_alignParentTop="true"
             android:layout_marginBottom="5dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_marginTop="5dp"
-            android:id="@+id/imagenProducto"
-            android:layout_alignParentTop="true" />
+            android:contentDescription="ProductImage" />
 
         <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:id="@+id/ProductLayout"
+            android:layout_width="161dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.65"
+            android:baselineAligned="false"
+            android:clickable="false"
+            android:measureWithLargestChild="false"
+            android:orientation="vertical">
 
             <TextView
+                android:id="@+id/nombreProducto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="Product name"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Medium Text"
-                android:id="@+id/nombreProducto" />
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:paddingTop="2dp">
+
+            <ImageButton
+                android:id="@+id/addButton"
+                android:layout_width="75px"
+                android:layout_height="75px"
+                android:layout_marginRight="6dp"
+                android:onClick="additionProduct"
+                android:src="@drawable/plus" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Small Text"
-                android:id="@+id/categoriasProducto" />
+                android:id="@+id/productQuantity"
+                android:layout_width="22dp"
+                android:layout_height="20dp"
+                android:layout_marginRight="6dp"
+                android:layout_marginTop="10dp"
+                android:text="1"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/abc_primary_text_material_light"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/minusButton"
+                android:layout_width="75px"
+                android:layout_height="75px"
+                android:src="@drawable/minus" />
+
         </LinearLayout>
     </LinearLayout>
 

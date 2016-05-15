@@ -7,11 +7,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -34,9 +33,10 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private ListView listView;
-    private ListProductos lista;
-    private List<Producto> productos;
+    private ListProducts lista;
+    private List<Product> products;
     private String authDE = "Cc10Q5b3u5Ll0Vu6", keyDE = "/7gTYlpC/2dT";
+    private RequestQueue requestQueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +53,21 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-        productos = new ArrayList<>();
+        products = new ArrayList<>();
         listView = (ListView) findViewById(R.id.listView);
-        lista = new ListProductos(this,productos);
+        lista = new ListProducts(this, products, new BtnClickListener() {
+            @Override
+            public void add(int position) {
+                lista.increase(true, position);
+            }
+
+            @Override
+            public void minus(int position) {
+                lista.increase(false, position);
+            }
+        });
         listView.setAdapter(lista);
+        requestQueue = Volley.newRequestQueue(this);
     }
 
     @Override
@@ -81,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(final int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) {
             if (result.getContents() != null) {
@@ -92,10 +103,11 @@ public class MainActivity extends AppCompatActivity {
                 } catch (SignatureException | NoSuchAlgorithmException | InvalidKeyException ex) {
                     Log.d("Error en la conversion", "HMAC_SHA1", ex);
                 }
-                signature = Uri.encode(signature,"=");
-                signature = signature.replaceAll("\\%0A","");
+                signature = Uri.encode(signature, "=");
+                signature = signature.replaceAll("\\%0A", "");
                 String url = "http://digit-eyes.com/gtin/v2_0/?upc_code=" + code + "&app_key=" + keyDE + "&signature=" + signature + "&language=es&field_names=description,image,categories";
                 Log.d("url del sitio", url);
+                final String codeFinal = code;
                 JsonObjectRequest jsObjRequest = new JsonObjectRequest
                         (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                             @Override
@@ -107,26 +119,48 @@ public class MainActivity extends AppCompatActivity {
                                     agregarElemento(producto, imagen, categorias);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(getApplicationContext(),
-                                            "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                                 }
                             }
                         }, new Response.ErrorListener() {
-
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(getApplicationContext(), "error: " + error.getMessage(), Toast.LENGTH_LONG).show();
-                                Log.d("error volley", error.toString());
+                                requestNew(codeFinal);
                             }
                         });
-                RequestQueue requestQueue = Volley.newRequestQueue(this);
                 requestQueue.add(jsObjRequest);
             }
         }
     }
 
     private void agregarElemento(String producto, String imagen, String categorias) {
-        Producto p = new Producto(imagen, categorias, 0, producto);
+        Product p = new Product(imagen, categorias, 0, producto, 1);
         lista.add(p);
+    }
+
+    private void requestNew(String code) {
+        String url = "http://eandata.com/feed/?v=3&keycode=45B88E105738A12C&mode=json&find=" + code;
+        Log.d("url del sitio", url);
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONObject product = response.getJSONObject("product");
+                            String name = product.getString("product");
+                            String image = product.getString("image");
+                            String categories = product.getString("category");
+                            agregarElemento(name, image, categories);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("error volley", error.toString());
+                    }
+                });
+        requestQueue.add(jsObjRequest);
     }
 }
