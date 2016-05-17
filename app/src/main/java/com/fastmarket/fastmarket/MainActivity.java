@@ -3,6 +3,8 @@ package com.fastmarket.fastmarket;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,6 +12,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 
 import com.android.volley.Request;
@@ -37,14 +41,16 @@ public class MainActivity extends AppCompatActivity {
     private List<Product> products;
     private String authDE = "Cc10Q5b3u5Ll0Vu6", keyDE = "/7gTYlpC/2dT";
     private RequestQueue requestQueue;
-
+    private boolean showFAB = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         if (fab != null) {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -53,6 +59,38 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+        final Animation growAnimation = AnimationUtils.loadAnimation(this, R.anim.simple_grow);
+        final Animation shrinkAnimation = AnimationUtils.loadAnimation(this, R.anim.simple_shrink);
+        View bottomSheet = findViewById(R.id.bottom_sheet);
+        BottomSheetBehavior behavior = BottomSheetBehavior.from(bottomSheet);
+        behavior.setPeekHeight(120);
+        behavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+
+                switch (newState) {
+                    case BottomSheetBehavior.STATE_DRAGGING:
+                        if (showFAB)
+                            fab.startAnimation(shrinkAnimation);
+                        break;
+                    case BottomSheetBehavior.STATE_COLLAPSED:
+                        showFAB = true;
+                        fab.setVisibility(View.VISIBLE);
+                        fab.startAnimation(growAnimation);
+                        break;
+                    case BottomSheetBehavior.STATE_EXPANDED:
+                        showFAB = false;
+                        fab.setVisibility(View.INVISIBLE);
+                        break;
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+            }
+        });
+
         products = new ArrayList<>();
         listView = (ListView) findViewById(R.id.listView);
         lista = new ListProducts(this, products, new BtnClickListener() {
@@ -92,6 +130,11 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
     public void onActivityResult(final int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) {
@@ -124,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                requestNew(codeFinal);
+                                error.printStackTrace();
                             }
                         });
                 requestQueue.add(jsObjRequest);
@@ -141,15 +184,13 @@ public class MainActivity extends AppCompatActivity {
         String url = "http://eandata.com/feed/?v=3&keycode=45B88E105738A12C&mode=json&find=" + code;
         Log.d("url del sitio", url);
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                (Request.Method.POST, url, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            JSONObject product = response.getJSONObject("product");
-                            String name = product.getString("product");
-                            String image = product.getString("image");
-                            String categories = product.getString("category");
-                            agregarElemento(name, image, categories);
+                            Log.d("response", response.toString());
+                            String name = response.getString("attributes");
+                            agregarElemento(name, "", "");
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

@@ -65,7 +65,7 @@ public class ListProducts extends ArrayAdapter<Product> {
         } else {
             holder = (ProductHolder) v.getTag();
         }
-        new DownloadImageTask(holder.image).execute(products.get(position).getImage());
+        new DownloadImageTask(holder.image, products.get(position).getName()).execute(products.get(position).getImage());
         holder.name.setText(products.get(position).getName());
         holder.quantity.setText(products.get(position).getQuantity() + "");
         holder.add.setOnClickListener(new View.OnClickListener() {
@@ -98,9 +98,11 @@ public class ListProducts extends ArrayAdapter<Product> {
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView bmImage;
+        String name;
 
-        public DownloadImageTask(ImageView bmImage) {
+        public DownloadImageTask(ImageView bmImage, String name) {
             this.bmImage = bmImage;
+            this.name = name;
         }
 
         protected Bitmap doInBackground(String... urls) {
