@@ -36,7 +36,7 @@ public class ListProducts extends ArrayAdapter<Product> {
         notifyDataSetChanged();
     }
 
-    public void increase(boolean add, int position) {
+    public float increase(boolean add, int position) {
         Product p = products.get(position);
         if (add) {
             p.setQuantity(p.getQuantity() + 1);
@@ -47,6 +47,7 @@ public class ListProducts extends ArrayAdapter<Product> {
             products.remove(position);
         }
         notifyDataSetChanged();
+        return p.getPrice();
     }
 
     @Override
@@ -61,13 +62,21 @@ public class ListProducts extends ArrayAdapter<Product> {
             holder.add = ((ImageButton) v.findViewById(R.id.addButton));
             holder.minus = ((ImageButton) v.findViewById(R.id.minusButton));
             holder.quantity = (TextView) v.findViewById(R.id.productQuantity);
+            holder.price = (TextView) v.findViewById(R.id.productPrice);
             v.setTag(holder);
         } else {
             holder = (ProductHolder) v.getTag();
         }
-        new DownloadImageTask(holder.image, products.get(position).getName()).execute(products.get(position).getImage());
-        holder.name.setText(products.get(position).getName());
-        holder.quantity.setText(products.get(position).getQuantity() + "");
+        Product p = products.get(position);
+        if (p.getImageURL().compareTo("") != 0) {
+            new DownloadImageTask(holder.image, products.get(position).getName()).execute(p.getImageURL());
+        } else {
+            holder.image.setImageBitmap(Utils.getImage(p.getImage()));
+        }
+        String price = "$ " + ((int) p.getPrice()) + "";
+        holder.price.setText(price);
+        holder.name.setText(p.getName());
+        holder.quantity.setText(p.getQuantity() + "");
         holder.add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -89,7 +98,7 @@ public class ListProducts extends ArrayAdapter<Product> {
 
     static class ProductHolder {
         TextView name;
-        TextView categories;
+        TextView price;
         ImageView image;
         ImageButton add;
         ImageButton minus;

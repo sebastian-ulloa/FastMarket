@@ -55,6 +55,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="0"
+                    android:id="@+id/total"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="@color/background_floating_material_light"
                     android:textStyle="bold" />

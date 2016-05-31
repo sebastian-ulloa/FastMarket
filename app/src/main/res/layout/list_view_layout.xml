@@ -8,6 +8,7 @@
         android:layout_alignParentTop="false"
         android:measureWithLargestChild="true"
         android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:padding="5dp"
         android:weightSum="1">
 
@@ -25,32 +26,28 @@
         <LinearLayout
             android:id="@+id/ProductLayout"
             android:layout_width="161dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="0.65"
             android:baselineAligned="false"
             android:clickable="false"
             android:gravity="center_vertical"
             android:measureWithLargestChild="false"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/nombreProducto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:maxWidth="130dp"
                 android:text="Product name"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textStyle="bold" />
-
             <TextView
                 android:id="@+id/productPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:text=" $ 0"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#1A237E"
+                android:textColor="@color/productPriceColor"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -60,8 +57,6 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="horizontal">
-
-
             <TextView
                 android:id="@+id/productQuantity"
                 android:layout_width="22dp"
